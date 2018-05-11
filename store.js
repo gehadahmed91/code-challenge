@@ -24,7 +24,10 @@ async.waterfall([
 		var newObj = oldObj;
 		// add new key/value
 		if(order == 'add'){
-			newObj[process.argv[3]] = {"key":process.argv[3],"value":process.argv[4]};
+			if(process.argv[3] && process.argv[4])
+				newObj[process.argv[3]] = {"key":process.argv[3],"value":process.argv[4]};
+			else
+				console.log("There is missing arguments");
 		}
 		// list the current keys/values
 		else if(order == 'list'){
@@ -49,8 +52,9 @@ async.waterfall([
 		callback(null, newObj);
 	},
 	function(newObj, callback){
-		fs.writeFile('dictionary.txt', JSON.stringify(newObj), function (err) {
+		fs.writeFile('dictionary.txt', JSON.stringify(newObj, null , 4), function (err) {
 	 		if (err) throw err;
+	 		callback(null, newObj);
 	 	});
 	}
 	],function(err, results){
