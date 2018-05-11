@@ -2,7 +2,7 @@ var fs = require('fs');
 var async = require('async');
 
 var order = process.argv[2];
-
+var actionRes = "";
 
 async.waterfall([
 	//get object of objects from dictionary.txt file
@@ -22,12 +22,16 @@ async.waterfall([
 	function(oldObj, callback){
 		// get the new object to save
 		var newObj = oldObj;
+		
 		// add new key/value
 		if(order == 'add'){
 			if(process.argv[3] && process.argv[4])
 				newObj[process.argv[3]] = {"key":process.argv[3],"value":process.argv[4]};
 			else
+			{
 				console.log("There is missing arguments");
+				actionRes = 'missingArgs';
+			}
 		}
 		// list the current keys/values
 		else if(order == 'list'){
@@ -35,12 +39,27 @@ async.waterfall([
 		}
 		// get value for specific key
 		else if(order == 'get'){
-			console.log(newObj[process.argv[3]]);
+			if(process.argv[3])
+				if(newObj[process.argv[3]])
+					console.log(newObj[process.argv[3]]);
+				else
+					console.log('Ther is No Values for this Key');
+			else
+			{
+				console.log("There is missing arguments");
+				actionRes = 'missingArgs';
+			}
 		}
 		// remove value for specific key
 		else if(order == 'remove'){
-			delete newObj[process.argv[3]];
-			console.log(newObj);
+
+			if(process.argv[3])
+				delete newObj[process.argv[3]];
+			else
+			{
+				console.log("There is missing arguments");
+				actionRes = 'missingArgs';
+			}
 		}
 		// clear all keys/values
 		else if( order == 'clear'){
@@ -48,6 +67,7 @@ async.waterfall([
 		}
 		else{
 			console.log("This action is not valid")
+			actionRes = 'invalid';
 		}
 		callback(null, newObj);
 	},
@@ -59,5 +79,13 @@ async.waterfall([
 	}
 	],function(err, results){
 		if(err) throw err;
-		console.log("Action Applied Successfuly");
+		if(actionRes == 'missingArgs')
+			console.log("Enter All Required Arguments");
+		else if(actionRes == 'invalid')
+			console.log("Enter a Valid Action");
+		else{
+			console.log(results);
+			console.log("=================================");
+			console.log("Action Applied Successfuly");
+		}
 	});
